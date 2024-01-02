@@ -1,0 +1,121 @@
+﻿@page "/donationform"
+@using WebAssembly_Assignment.Shared
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+
+<h3>Donation Form</h3>
+
+<EditForm Model="@donation" OnValidSubmit="@HandleOnSubmit">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+
+    <label>
+        Enter Donation Id :
+        <InputNumber  @bind-Value="donation.Id" />
+    </label>
+    <br>
+     <label>
+        Enter Medicine Name : 
+        <InputText  @bind-Value="donation.MedicineName" />
+    </label>
+    <br>
+    <label>
+        Enter Company:
+        <InputText @bind-Value="donation.Company" />
+    </label>
+    <br>
+     <label>
+        Enter Potency :
+        <InputText @bind-Value="donation.Potency" />
+    </label>
+    <br>
+    <label>
+        Enter Donate Quantity
+        <InputNumber @bind-Value="donation.DonateQuantity" />
+    </label>
+    <br>
+    <button type="submit" >Submit</button>
+
+
+
+</EditForm>
+
+<p>@message</p>
+
+<table>
+
+    <thead>Id</thead>
+    <thead>Medicine Name</thead>
+    <thead>Company</thead>
+    <thead>Potency</thead>
+    <thead>Donate Quantity</thead>
+
+
+ @foreach(Donation donate  in donations )
+{
+
+    <tr>
+        <td>@donate.Id</td>
+        <td>@donate.MedicineName</td>
+        <td>@donate.Company</td>
+        <td>@donate.Potency</td>
+        <td>@donate.DonateQuantity</td>
+    </tr>
+
+
+
+}
+</table>
+
+
+
+
+@code {
+
+    Donation donation = new Donation()
+    {
+        
+    };
+
+
+    List<Donation> donations = new List<Donation>();
+    string message = "";
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        donations = await Http.GetFromJsonAsync<List<Donation>>("/Add_Donation");
+       
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        donations = await Http.GetFromJsonAsync<List<Donation>>("/Add_Donation");
+
+    }
+
+
+
+
+    async void HandleOnSubmit()
+    {
+
+        var res = await Http.PostAsJsonAsync("/api/v1/Donation", donation);
+        if(res.IsSuccessStatusCode)
+        {
+
+            message = res.ToString();
+            
+
+            
+        }
+        StateHasChanged();
+
+    }
+
+
+}
